@@ -1,7 +1,7 @@
 /// Emulate a point in plane
 ///
 /// * `position`: Point position
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Point {
     pub position: [f64; 2],
 }
@@ -11,7 +11,7 @@ pub struct Point {
 /// * `points`: Sphere points
 /// * `center`: Sphere center
 /// * `radius`: Sphere radius
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct Sphere<const N: usize> {
     pub points: [Point; N],
     pub center: Point,
