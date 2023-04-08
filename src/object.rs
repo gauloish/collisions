@@ -48,6 +48,11 @@ pub struct Object<const N: usize> {
 }
 
 impl<const N: usize> Object<N> {
+    /// Create a new object
+    ///
+    /// * `color`: Object color
+    /// * `radius`: Object radius
+    /// * `display`: Display
     pub fn new(color: usize, radius: f64, display: &glium::Display) -> Object<N> {
         let shape = vertices_data(&sphere);
         let index = indices_data();
