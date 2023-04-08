@@ -1,9 +1,9 @@
-pub const width: u32 = 625;
-pub const height: u32 = 625;
+pub const WIDTH: u32 = 625;
+pub const HEIGHT: u32 = 625;
 
-pub const title: &str = "Collisions";
+pub const TITLE: &str = "Collisions";
 
-pub const colors: [[f64; 3]; 7] = [
+pub const COLORS: [[f64; 3]; 7] = [
     [0.70, 0.8, 0.14],  // red
     [0.09, 0.63, 0.69], // blue
     [0.76, 0.65, 0.07], // yellow
