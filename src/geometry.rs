@@ -1,7 +1,7 @@
 /// Emulate a point in plane
 ///
 /// * `position`: Point position
-#[derive(Clone, Copy, Default, Debug)]
+#[derive(Clone, Copy)]
 pub struct Point {
     pub position: [f64; 2],
 }
@@ -18,16 +18,23 @@ pub struct Sphere<const N: usize> {
     pub radius: f64,
 }
 
+impl Point {
+    /// Create a point from array
+    ///
+    /// * `point`: Array
+    fn from(point: &[f64; 2]) -> Point {
+        Point {
+            position: point.clone(),
+        }
+    }
+}
+
 impl<const N: usize> Sphere<N> {
     /// Create a new sphere
     ///
     /// * `center`: Sphere center
     /// * `radius`: Sphere radius
-    pub fn new(point: &[f64; 2], radius: &f64) -> Sphere<N> {
-        let center = Point {
-            position: point.clone(),
-        };
-
+    pub fn new(center: &Point, radius: &f64) -> Sphere<N> {
         let points = std::array::from_fn::<_, N, _>(|index| {
             let angle = 2.0 * std::f64::consts::PI * (index as f64) / (N as f64);
 
