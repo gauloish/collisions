@@ -1,17 +1,19 @@
 extern crate glium;
 
+use glium::Surface;
+
 use crate::geometry;
 use crate::settings;
 
 /// Generate vertices array to vertex buffer
 ///
 /// * `sphere`: Sphere to get verices array
-fn vertices_data<const N: usize>(sphere: &geometry::Sphere<N>) -> [geometry::Point; N + 1] {
-    let data: [geometry::Point; N + 1];
+fn vertices_data(sphere: &geometry::Sphere) -> [geometry::Point; 3 * settings::LENGTH] {
+    let data: [geometry::Point; 3 * settings::LENGTH];
 
     data[0] = sphere.center;
 
-    for index in (0..N) {
+    for index in 0..settings::LENGTH {
         data[index + 1] = sphere.points[index];
     }
 
@@ -19,13 +21,13 @@ fn vertices_data<const N: usize>(sphere: &geometry::Sphere<N>) -> [geometry::Poi
 }
 
 /// Generate indices array to index buffer
-fn indices_data() -> [u16; 3 * N] {
-    let data: [u16; 3 * N];
+fn indices_data() -> [u16; settings::LENGTH] {
+    let data: [u16; settings::LENGTH];
 
-    for index in (0..N) {
+    for index in 0..settings::LENGTH {
         data[3 * index + 0] = 0;
-        data[3 * index + 1] = index;
-        data[3 * index + 2] = index + 1;
+        data[3 * index + 1] = index as u16;
+        data[3 * index + 2] = (index as u16) + 1;
     }
 
     data
@@ -39,21 +41,24 @@ fn indices_data() -> [u16; 3 * N] {
 /// * `indices`: Index buffer
 /// * `program`: Shader program
 /// * `color`: Index color
-pub struct Object<const N: usize> {
-    sphere: geometry::Sphere<N>,
-    vertices: glium::VertexBuffer,
-    indices: glium::IndexBuffer,
+pub struct Object {
+    sphere: geometry::Sphere,
+    vertices: glium::VertexBuffer<geometry::Point>,
+    indices: glium::IndexBuffer<u16>,
     program: glium::Program,
     color: usize,
 }
 
-impl<const N: usize> Object<N> {
+impl Object {
     /// Create a new object
     ///
     /// * `color`: Object color
     /// * `radius`: Object radius
     /// * `display`: Display
-    pub fn new(color: usize, radius: f64, display: &glium::Display) -> Object<N> {
+    pub fn new(color: usize, radius: f64, display: &glium::Display) -> Object {
+        let center: geometry::Point = geometry::Point::from([0.0, 0.0]);
+        let sphere: geometry::Sphere = geometry::Sphere::new(center, radius);
+
         let shape = vertices_data(&sphere);
         let index = indices_data();
 
@@ -73,21 +78,15 @@ impl<const N: usize> Object<N> {
             }
         "#;
 
-        let center: geometry::Point = geometry::Point::from([0.0, 0.0]);
-        let sphere: geometry::Sphere<N> = geometry::Sphere::new(center, radius);
-
         let program =
-            glium::Program::from_source(&display, vertex_shader, fragment_shader, None).unwrap();
+            glium::Program::from_source(display, vertex_shader, fragment_shader, None).unwrap();
 
-        let vertices = glium::VertexBuffer::new(&display, &shape).unwrap();
-        let indices = glium::IndexBuffer::new(
-            &display,
-            glium::index::PrimitiveType::TrianglesList,
-            &indices,
-        )
-        .unwrap();
+        let vertices = glium::VertexBuffer::new(display, &shape).unwrap();
+        let indices =
+            glium::IndexBuffer::new(display, glium::index::PrimitiveType::TrianglesList, &index)
+                .unwrap();
 
-        Object::<N> {
+        Object {
             sphere,
             vertices,
             indices,
