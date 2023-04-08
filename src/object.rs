@@ -8,8 +8,11 @@ use crate::settings;
 /// Generate vertices array to vertex buffer
 ///
 /// * `sphere`: Sphere to get verices array
-fn vertices_data(sphere: &geometry::Sphere) -> [geometry::Point; 1 + settings::LENGTH] {
-    let mut data = [geometry::Point::from([0.0, 0.0]); 1 + settings::LENGTH];
+fn vertices_data(
+    sphere: &geometry::Sphere,
+    color: usize,
+) -> [geometry::Point; 1 + settings::LENGTH] {
+    let mut data = [geometry::Point::from(color); 1 + settings::LENGTH];
 
     data[0] = sphere.center;
 
@@ -48,7 +51,6 @@ pub struct Object {
     vertices: glium::VertexBuffer<geometry::Point>,
     indices: glium::IndexBuffer<u16>,
     program: glium::Program,
-    color: usize,
 }
 
 impl Object {
@@ -58,10 +60,10 @@ impl Object {
     /// * `radius`: Object radius
     /// * `display`: Display
     pub fn new(color: usize, radius: f64, display: &glium::Display) -> Object {
-        let center: geometry::Point = geometry::Point::from([0.0, 0.0]);
-        let sphere: geometry::Sphere = geometry::Sphere::new(center, radius);
+        let center: geometry::Point = geometry::Point::from(color);
+        let sphere: geometry::Sphere = geometry::Sphere::new(center, radius, color);
 
-        let shape = vertices_data(&sphere);
+        let shape = vertices_data(&sphere, color);
         let index = indices_data();
 
         let vertex_shader = r#"
@@ -93,7 +95,6 @@ impl Object {
             vertices,
             indices,
             program,
-            color,
         }
     }
 
