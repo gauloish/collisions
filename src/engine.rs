@@ -1,5 +1,8 @@
 extern crate glium;
 
+use crate::geometry;
+use crate::settings;
+
 pub fn run() {
     #[allow(unused_imports)]
     use glium::{glutin, Surface};
@@ -14,7 +17,7 @@ pub fn run() {
         position: [f32; 2],
     }
 
-    implement_vertex!(Vertex, position);
+    glium::implement_vertex!(Vertex, position);
 
     let vertex1 = Vertex {
         position: [-0.5, -0.5],
