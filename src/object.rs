@@ -94,4 +94,20 @@ impl Object {
             color,
         }
     }
+
+    pub fn render(&self, display: &glium::Display) {
+        let mut frame = display.draw();
+
+        frame.clear_color(0.96, 0.96, 0.96, 1.0);
+        frame
+            .draw(
+                &self.vertices,
+                &self.indices,
+                &self.program,
+                &glium::uniforms::EmptyUniforms,
+                &Default::default(),
+            )
+            .unwrap();
+        frame.finish().unwrap();
+    }
 }
