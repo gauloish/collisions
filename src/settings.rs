@@ -1,6 +1,9 @@
 pub const WIDTH: u32 = 625;
 pub const HEIGHT: u32 = 625;
 
+pub const LENGTH: usize = 10;
+pub const AMOUNT: usize = 10;
+
 pub const TITLE: &str = "Collisions";
 
 pub const COLORS: [[f64; 3]; 7] = [
