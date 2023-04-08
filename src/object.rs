@@ -97,6 +97,9 @@ impl Object {
         }
     }
 
+    /// Render object
+    ///
+    /// * `display`: Display where render
     pub fn render(&self, display: &glium::Display) {
         let mut frame = display.draw();
 
