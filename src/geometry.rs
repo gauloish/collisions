@@ -1,3 +1,5 @@
+use crate::settings;
+
 /// Emulate a point in plane
 ///
 /// * `position`: Point position
@@ -12,8 +14,8 @@ pub struct Point {
 /// * `center`: Sphere center
 /// * `radius`: Sphere radius
 #[derive(Clone, Copy, Debug)]
-pub struct Sphere<const N: usize> {
-    pub points: [Point; N],
+pub struct Sphere {
+    pub points: [Point; settings::LENGTH],
     pub center: Point,
     pub radius: f64,
 }
@@ -27,14 +29,14 @@ impl Point {
     }
 }
 
-impl<const N: usize> Sphere<N> {
+impl Sphere {
     /// Create a new sphere
     ///
     /// * `center`: Sphere center
     /// * `radius`: Sphere radius
-    pub fn new(center: Point, radius: f64) -> Sphere<N> {
-        let points = std::array::from_fn::<_, N, _>(|index| {
-            let angle = 2.0 * std::f64::consts::PI * (index as f64) / (N as f64);
+    pub fn new(center: Point, radius: f64) -> Sphere {
+        let points: [Point; settings::LENGTH] = std::array::from_fn(|index| {
+            let angle = 2.0 * std::f64::consts::PI * (index as f64) / (settings::LENGTH as f64);
 
             let position: [f64; 2] = [
                 center.position[0] + radius * angle.cos(),
