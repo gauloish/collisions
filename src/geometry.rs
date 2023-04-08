@@ -1,4 +1,3 @@
-// pub mod geometry {
 pub struct Sphere<const N: usize> {
     pub points: [[f64; 2]; N],
     pub center: [f64; 2],
@@ -8,7 +7,7 @@ pub struct Sphere<const N: usize> {
 impl<const N: usize> Sphere<N> {
     pub fn new(center: &[f64; 2], radius: &f64) -> Sphere<N> {
         let points = std::array::from_fn::<_, N, _>(|index| {
-            let angle = std::f64::consts::PI * (index as f64) / (N as f64);
+            let angle = 2.0 * std::f64::consts::PI * (index as f64) / (N as f64);
 
             [
                 center[0] + radius * angle.cos(),
@@ -23,4 +22,3 @@ impl<const N: usize> Sphere<N> {
         }
     }
 }
-// }
