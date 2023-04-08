@@ -22,10 +22,8 @@ impl Point {
     /// Create a point from array
     ///
     /// * `point`: Array
-    fn from(point: &[f64; 2]) -> Point {
-        Point {
-            position: point.clone(),
-        }
+    pub fn from(position: [f64; 2]) -> Point {
+        Point { position }
     }
 }
 
@@ -34,7 +32,7 @@ impl<const N: usize> Sphere<N> {
     ///
     /// * `center`: Sphere center
     /// * `radius`: Sphere radius
-    pub fn new(center: &Point, radius: &f64) -> Sphere<N> {
+    pub fn new(center: Point, radius: f64) -> Sphere<N> {
         let points = std::array::from_fn::<_, N, _>(|index| {
             let angle = 2.0 * std::f64::consts::PI * (index as f64) / (N as f64);
 
@@ -43,15 +41,13 @@ impl<const N: usize> Sphere<N> {
                 center.position[1] + radius * angle.sin(),
             ];
 
-            Point {
-                position: position.clone(),
-            }
+            Point { position }
         });
 
         Sphere {
-            points: points.clone(),
-            center: center.clone(),
-            radius: radius.clone(),
+            points,
+            center,
+            radius,
         }
     }
 }
