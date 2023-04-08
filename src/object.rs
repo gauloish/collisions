@@ -8,8 +8,8 @@ use crate::settings;
 /// Generate vertices array to vertex buffer
 ///
 /// * `sphere`: Sphere to get verices array
-fn vertices_data(sphere: &geometry::Sphere) -> [geometry::Point; 3 * settings::LENGTH] {
-    let data: [geometry::Point; 3 * settings::LENGTH];
+fn vertices_data(sphere: &geometry::Sphere) -> [geometry::Point; 1 + settings::LENGTH] {
+    let mut data = [geometry::Point::from([0.0, 0.0]); 1 + settings::LENGTH];
 
     data[0] = sphere.center;
 
@@ -21,14 +21,16 @@ fn vertices_data(sphere: &geometry::Sphere) -> [geometry::Point; 3 * settings::L
 }
 
 /// Generate indices array to index buffer
-fn indices_data() -> [u16; settings::LENGTH] {
-    let data: [u16; settings::LENGTH];
+fn indices_data() -> [u16; 3 * settings::LENGTH] {
+    let mut data = [0; 3 * settings::LENGTH];
 
     for index in 0..settings::LENGTH {
         data[3 * index + 0] = 0;
-        data[3 * index + 1] = index as u16;
-        data[3 * index + 2] = (index as u16) + 1;
+        data[3 * index + 1] = (index as u16) + 1;
+        data[3 * index + 2] = (index as u16) + 2;
     }
+
+    data[3 * settings::LENGTH - 1] = 1;
 
     data
 }
