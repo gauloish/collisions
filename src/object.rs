@@ -9,7 +9,7 @@ use crate::settings;
 ///
 /// * `sphere`: Sphere to get verices array
 fn vertices_data(
-    sphere: &geometry::Sphere,
+    sphere: geometry::Sphere,
     color: usize,
 ) -> [geometry::Point; 1 + settings::LENGTH] {
     let mut data = [geometry::Point::from(color); 1 + settings::LENGTH];
@@ -47,10 +47,10 @@ fn indices_data() -> [u16; 3 * settings::LENGTH] {
 /// * `program`: Shader program
 /// * `color`: Index color
 pub struct Object {
-    sphere: geometry::Sphere,
-    vertices: glium::VertexBuffer<geometry::Point>,
-    indices: glium::IndexBuffer<u16>,
-    program: glium::Program,
+    pub sphere: geometry::Sphere,
+    pub vertices: glium::VertexBuffer<geometry::Point>,
+    pub indices: glium::IndexBuffer<u16>,
+    pub program: glium::Program,
 }
 
 impl Object {
@@ -63,7 +63,7 @@ impl Object {
         let center: geometry::Point = geometry::Point::from(color);
         let sphere: geometry::Sphere = geometry::Sphere::new(center, radius, color);
 
-        let shape = vertices_data(&sphere, color);
+        let shape = vertices_data(sphere, color);
         let index = indices_data();
 
         let vertex_shader = r#"
@@ -88,7 +88,7 @@ impl Object {
             out vec4 color;
 
             void main() {
-                color = vec4(_color, 0.0);
+                color = vec4(_color, 1.0);
             }
         "#;
 
