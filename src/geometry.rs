@@ -3,6 +3,7 @@ use crate::settings;
 /// Emulate a point in plane
 ///
 /// * `position`: Point position
+/// * `color`: Point color
 #[derive(Clone, Copy, Debug)]
 pub struct Point {
     pub position: [f64; 2],
@@ -24,7 +25,7 @@ pub struct Sphere {
 impl Point {
     /// Create a point from array
     ///
-    /// * `point`: Array
+    /// * `color`: Color index
     pub fn from(color: usize) -> Point {
         Point {
             position: [0.0, 0.0],
@@ -38,6 +39,7 @@ impl Sphere {
     ///
     /// * `center`: Sphere center
     /// * `radius`: Sphere radius
+    /// * `color`: Color index
     pub fn new(center: Point, radius: f64, color: usize) -> Sphere {
         let points: [Point; settings::LENGTH] = std::array::from_fn(|index| {
             let angle = 2.0 * std::f64::consts::PI * (index as f64) / (settings::LENGTH as f64);
