@@ -1,90 +1,93 @@
 extern crate glium;
 
-use crate::geometry;
+use crate::geometry::Point;
+use crate::object;
 use crate::settings;
+
+use rand;
+
+fn print_type_of<T>(_: &T) {
+    println!("{}", std::any::type_name::<T>())
+}
+
+pub fn generate(display: &glium::backend::glutin::Display) -> Vec<object::Object> {
+    let mut objects: Vec<object::Object> = Vec::new();
+
+    let seed = rand::random::<usize>();
+
+    let amount = (8 + seed % (32 - 8)) as f32;
+
+    let length = 1.0 / amount;
+    let radius = length * ((20 + seed % 40) as f32) / 100.0;
+    let padding = (2.0 - 2.0 * radius * amount) / (amount + 1.0);
+
+    for line in 0..(amount as usize) {
+        for column in 0..(amount as usize) {
+            let center = [
+                (padding + 2.0 * radius) * ((column as f32) + 1.0) - 1.0 - radius, //+ radius + padding / 2.0,
+                (padding + 2.0 * radius) * ((line as f32) + 1.0) - 1.0 - radius, //+ padding / 2.0,
+            ];
+
+            println!("Length: {}", length);
+            println!("Radius: {}", radius);
+            println!("Center: ({}, {})", center[0], center[1]);
+            println!("");
+
+            objects.push(object::Object::new(center, radius, display));
+        }
+    }
+
+    objects
+}
 
 pub fn run() {
     #[allow(unused_imports)]
     use glium::{glutin, Surface};
 
-    let event_loop = glutin::event_loop::EventLoop::new();
-    let wb = glutin::window::WindowBuilder::new();
-    let cb = glutin::ContextBuilder::new();
-    let display = glium::Display::new(wb, cb, &event_loop).unwrap();
+    let events = glium::glutin::event_loop::EventLoop::new();
+    let context = glium::glutin::ContextBuilder::new();
+    let window = glium::glutin::window::WindowBuilder::new()
+        .with_title(settings::TITLE)
+        .with_inner_size(glium::glutin::dpi::PhysicalSize::new(
+            settings::WIDTH,
+            settings::HEIGHT,
+        ));
+    let display = glium::Display::new(window, context, &events).unwrap();
 
-    #[derive(Copy, Clone)]
-    struct Vertex {
-        position: [f32; 2],
-    }
+    glium::implement_vertex!(Point, position, color);
 
-    glium::implement_vertex!(Vertex, position);
+    let mut objects = generate(&display);
 
-    let vertex1 = Vertex {
-        position: [-0.5, -0.5],
-    };
-    let vertex2 = Vertex {
-        position: [0.0, 0.5],
-    };
-    let vertex3 = Vertex {
-        position: [0.5, -0.25],
-    };
-    let shape = vec![vertex1, vertex2, vertex3];
-
-    let vertex_buffer = glium::VertexBuffer::new(&display, &shape).unwrap();
-    let indices = glium::index::NoIndices(glium::index::PrimitiveType::TrianglesList);
-
-    let vertex_shader_src = r#"
-        #version 140
-        in vec2 position;
-        void main() {
-            gl_Position = vec4(position, 0.0, 1.0);
-        }
-    "#;
-
-    let fragment_shader_src = r#"
-        #version 140
-        out vec4 color;
-        void main() {
-            color = vec4(1.0, 0.0, 0.0, 1.0);
-        }
-    "#;
-
-    let program =
-        glium::Program::from_source(&display, vertex_shader_src, fragment_shader_src, None)
-            .unwrap();
-
-    event_loop.run(move |event, _, control_flow| {
+    events.run(move |event, _, flow| {
         let next_frame_time =
             std::time::Instant::now() + std::time::Duration::from_nanos(16_666_667);
-        *control_flow = glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
+
+        *flow = glium::glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
 
         match event {
-            glutin::event::Event::WindowEvent { event, .. } => match event {
-                glutin::event::WindowEvent::CloseRequested => {
-                    *control_flow = glutin::event_loop::ControlFlow::Exit;
+            glium::glutin::event::Event::WindowEvent { event, .. } => match event {
+                glium::glutin::event::WindowEvent::CloseRequested => {
+                    *flow = glium::glutin::event_loop::ControlFlow::Exit;
                     return;
                 }
                 _ => return,
             },
-            glutin::event::Event::NewEvents(cause) => match cause {
-                glutin::event::StartCause::ResumeTimeReached { .. } => (),
-                glutin::event::StartCause::Init => (),
+            glium::glutin::event::Event::NewEvents(cause) => match cause {
+                glium::glutin::event::StartCause::ResumeTimeReached { .. } => (),
+                glium::glutin::event::StartCause::Init => (),
                 _ => return,
             },
             _ => return,
         }
 
-        let mut target = display.draw();
-        target.clear_color(0.0, 0.0, 1.0, 1.0);
-        target
-            .draw(
-                &vertex_buffer,
-                &indices,
-                &program,
-                &glium::uniforms::EmptyUniforms,
-                &Default::default(),
-            )
-            .unwrap();
-        target.finish().unwrap();
+        let mut frame = display.draw();
+
+        frame.clear_color(0.96, 0.96, 0.96, 1.0);
+
+        for index in 0..objects.len() {
+            objects[index].render(&mut frame);
+        }
+
+        frame.finish().unwrap();
     });
 }
