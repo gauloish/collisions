@@ -104,6 +104,15 @@ impl Object {
         }
     }
 
+    /// Update position and velocity of object sphere
+    ///
+    /// * `center`: Object sphere center
+    /// * `velocity`: Object sphere velocity
+    pub fn update(&mut self, center: [f64; 2], velocity: [f64; 2]) {
+        self.sphere.center = center;
+        self.sphere.velocity = velocity;
+    }
+
     /// Render object
     ///
     /// * `display`: Display where render
