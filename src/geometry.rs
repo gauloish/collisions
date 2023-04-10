@@ -37,6 +37,16 @@ impl Point {
     }
 }
 
+impl Default for Point {
+    /// Default values
+    fn default() -> Self {
+        Point {
+            position: [0.0, 0.0],
+            color: [0.0, 0.0, 0.0],
+        }
+    }
+}
+
 impl Sphere {
     /// Create a new sphere
     ///
