@@ -5,7 +5,7 @@ use rand;
 ///
 /// * `position`: Point position
 /// * `color`: Point color
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Default)]
 pub struct Point {
     pub position: [f64; 2],
     pub color: [f64; 3],
@@ -34,16 +34,6 @@ impl Point {
         let color = settings::COLORS[index];
 
         Point { position, color }
-    }
-}
-
-impl Default for Point {
-    /// Default values
-    fn default() -> Self {
-        Point {
-            position: [0.0, 0.0],
-            color: [0.0, 0.0, 0.0],
-        }
     }
 }
 
