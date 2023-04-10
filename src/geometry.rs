@@ -28,7 +28,7 @@ pub struct Sphere {
 impl Point {
     /// Create a point from array
     ///
-    /// * `color`: Color index
+    /// * `position`: Point position
     pub fn new(position: [f64; 2]) -> Point {
         let index = rand::random::<usize>() % 7;
         let color = settings::COLORS[index];
