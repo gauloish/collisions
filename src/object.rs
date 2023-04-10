@@ -1,5 +1,6 @@
 extern crate glium;
 
+use glium::uniform;
 use glium::Surface;
 
 use crate::geometry;
@@ -54,14 +55,14 @@ impl Object {
     /// * `center`: Object center
     /// * `radius`: Object radius
     /// * `display`: Display
-    pub fn new(center: [f64; 2], radius: f64, display: &glium::Display) -> Object {
+    pub fn new(center: [f32; 2], radius: f32, display: &glium::Display) -> Object {
         let sphere = geometry::Sphere::new(center, radius);
 
         let shape = vertices_data(sphere);
         let index = indices_data();
 
         let vertex = r#"
-            #version 140
+            #version 330
 
             uniform vec2 center;
 
@@ -71,14 +72,13 @@ impl Object {
             out vec3 _color;
 
             void main() {
-                position += center;
-                gl_Position = vec4(position, 0.0, 1.0);
+                gl_Position = vec4(position + center, 0.0, 1.0);
                 _color = color;
             }
         "#;
 
         let fragment = r#"
-            #version 140
+            #version 330
             
             in vec3 _color;
 
@@ -108,7 +108,7 @@ impl Object {
     ///
     /// * `center`: Object sphere center
     /// * `velocity`: Object sphere velocity
-    pub fn update(&mut self, center: [f64; 2], velocity: [f64; 2]) {
+    pub fn update(&mut self, center: [f32; 2], velocity: [f32; 2]) {
         self.sphere.center = center;
         self.sphere.velocity = velocity;
     }
@@ -116,14 +116,11 @@ impl Object {
     /// Render object
     ///
     /// * `display`: Display where render
-    pub fn render(&self, display: &glium::Display) {
-        let mut frame = display.draw();
-
-        let uniforms = glium::uniform! {
+    pub fn render(&mut self, frame: &mut glium::Frame) {
+        let uniforms = uniform! {
             center: self.sphere.center,
         };
 
-        frame.clear_color(0.96, 0.96, 0.96, 1.0);
         frame
             .draw(
                 &self.vertices,
@@ -133,6 +130,5 @@ impl Object {
                 &Default::default(),
             )
             .unwrap();
-        frame.finish().unwrap();
     }
 }
