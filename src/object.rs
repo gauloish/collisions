@@ -9,7 +9,7 @@ use crate::settings;
 ///
 /// * `sphere`: Sphere to get verices array
 fn vertices_data(sphere: geometry::Sphere) -> [geometry::Point; 1 + settings::LENGTH] {
-    let mut data: [geometry::Point; 1 + settings::LENGTH];
+    let mut data = [geometry::Point::default(); 1 + settings::LENGTH];
 
     data[0].color = sphere.points[0].color;
 
