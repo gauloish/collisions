@@ -1,8 +1,5 @@
 extern crate glium;
 
-use glium::uniform;
-use glium::Surface;
-
 use crate::geometry;
 use crate::settings;
 
@@ -117,7 +114,9 @@ impl Object {
     ///
     /// * `display`: Display where render
     pub fn render(&mut self, frame: &mut glium::Frame) {
-        let uniforms = uniform! {
+        use glium::Surface;
+
+        let uniforms = glium::uniform! {
             center: self.sphere.center,
         };
 
