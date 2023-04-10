@@ -8,13 +8,10 @@ use crate::settings;
 /// Generate vertices array to vertex buffer
 ///
 /// * `sphere`: Sphere to get verices array
-fn vertices_data(
-    sphere: geometry::Sphere,
-    color: usize,
-) -> [geometry::Point; 1 + settings::LENGTH] {
-    let mut data = [geometry::Point::from(color); 1 + settings::LENGTH];
+fn vertices_data(sphere: geometry::Sphere) -> [geometry::Point; 1 + settings::LENGTH] {
+    let mut data: [geometry::Point; 1 + settings::LENGTH];
 
-    data[0] = sphere.center;
+    data[0].color = sphere.points[0].color;
 
     for index in 0..settings::LENGTH {
         data[index + 1] = sphere.points[index];
@@ -41,11 +38,9 @@ fn indices_data() -> [u16; 3 * settings::LENGTH] {
 /// A renderizable sphere
 ///
 /// * `sphere`: Object sphere
-/// * `center`: Sphere center
 /// * `vertices`: Vertex buffer
 /// * `indices`: Index buffer
 /// * `program`: Shader program
-/// * `color`: Index color
 pub struct Object {
     pub sphere: geometry::Sphere,
     pub vertices: glium::VertexBuffer<geometry::Point>,
@@ -56,17 +51,16 @@ pub struct Object {
 impl Object {
     /// Create a new object
     ///
-    /// * `color`: Object color
+    /// * `center`: Object center
     /// * `radius`: Object radius
     /// * `display`: Display
-    pub fn new(color: usize, radius: f64, display: &glium::Display) -> Object {
-        let center: geometry::Point = geometry::Point::from(color);
-        let sphere: geometry::Sphere = geometry::Sphere::new(center, radius, color);
+    pub fn new(center: [f64; 2], radius: f64, display: &glium::Display) -> Object {
+        let sphere = geometry::Sphere::new(center, radius);
 
-        let shape = vertices_data(sphere, color);
+        let shape = vertices_data(sphere);
         let index = indices_data();
 
-        let vertex_shader = r#"
+        let vertex = r#"
             #version 140
 
             in vec2 position;
@@ -80,7 +74,7 @@ impl Object {
             }
         "#;
 
-        let fragment_shader = r#"
+        let fragment = r#"
             #version 140
             
             in vec3 _color;
@@ -88,12 +82,11 @@ impl Object {
             out vec4 color;
 
             void main() {
-                color = vec4(_color, 1.0)
+                color = vec4(_color, 1.0);
             }
         "#;
 
-        let program =
-            glium::Program::from_source(display, vertex_shader, fragment_shader, None).unwrap();
+        let program = glium::Program::from_source(display, vertex, fragment, None).unwrap();
 
         let vertices = glium::VertexBuffer::new(display, &shape).unwrap();
         let indices =
