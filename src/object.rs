@@ -63,12 +63,15 @@ impl Object {
         let vertex = r#"
             #version 140
 
+            uniform vec2 center;
+
             in vec2 position;
             in vec3 color;
 
             out vec3 _color;
 
             void main() {
+                position += center;
                 gl_Position = vec4(position, 0.0, 1.0);
                 _color = color;
             }
@@ -107,13 +110,17 @@ impl Object {
     pub fn render(&self, display: &glium::Display) {
         let mut frame = display.draw();
 
+        let uniforms = glium::uniform! {
+            center: self.sphere.center,
+        };
+
         frame.clear_color(0.96, 0.96, 0.96, 1.0);
         frame
             .draw(
                 &self.vertices,
                 &self.indices,
                 &self.program,
-                &glium::uniforms::EmptyUniforms,
+                &uniforms,
                 &Default::default(),
             )
             .unwrap();
