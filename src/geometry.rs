@@ -7,8 +7,8 @@ use rand;
 /// * `color`: Point color
 #[derive(Clone, Copy, Debug, Default)]
 pub struct Point {
-    pub position: [f64; 2],
-    pub color: [f64; 3],
+    pub position: [f32; 2],
+    pub color: [f32; 3],
 }
 
 /// Emulate a sphere in plane
@@ -20,16 +20,16 @@ pub struct Point {
 #[derive(Clone, Copy, Debug)]
 pub struct Sphere {
     pub points: [Point; settings::LENGTH],
-    pub center: [f64; 2],
-    pub velocity: [f64; 2],
-    pub radius: f64,
+    pub center: [f32; 2],
+    pub velocity: [f32; 2],
+    pub radius: f32,
 }
 
 impl Point {
     /// Create a point from array
     ///
     /// * `position`: Point position
-    pub fn new(position: [f64; 2]) -> Point {
+    pub fn new(position: [f32; 2]) -> Point {
         let index = rand::random::<usize>() % 7;
         let color = settings::COLORS[index];
 
@@ -42,16 +42,16 @@ impl Sphere {
     ///
     /// * `center`: Sphere center
     /// * `radius`: Sphere radius
-    pub fn new(center: [f64; 2], radius: f64) -> Sphere {
+    pub fn new(center: [f32; 2], radius: f32) -> Sphere {
+        let color = rand::random::<usize>() % 7;
+
         let points: [Point; settings::LENGTH] = std::array::from_fn(|index| {
-            let angle = 2.0 * std::f64::consts::PI * (index as f64) / (settings::LENGTH as f64);
+            let angle = 2.0 * std::f32::consts::PI * (index as f32) / (settings::LENGTH as f32);
 
-            let position: [f64; 2] = [
-                center[0] + radius * angle.cos(),
-                center[1] + radius * angle.sin(),
+            let position: [f32; 2] = [
+                radius * angle.cos(), //
+                radius * angle.sin(), //
             ];
-
-            let color = rand::random::<usize>() % 7;
 
             Point {
                 position,
@@ -59,12 +59,12 @@ impl Sphere {
             }
         });
 
-        let angle = rand::random::<f64>();
+        let angle = rand::random::<f32>();
         let multiplier = 1 + rand::random::<usize>() % 100;
 
-        let velocity: [f64; 2] = [
-            ((multiplier as f64) / 100.0) * radius * angle.cos(),
-            ((multiplier as f64) / 100.0) * radius * angle.sin(),
+        let velocity: [f32; 2] = [
+            ((multiplier as f32) / 100.0) * radius * angle.cos(),
+            ((multiplier as f32) / 100.0) * radius * angle.sin(),
         ];
 
         Sphere {
