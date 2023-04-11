@@ -92,10 +92,10 @@ pub fn run() {
     let mut objects = generate(&display);
 
     events.run(move |event, _, flow| {
-        let next_frame_time =
-            std::time::Instant::now() + std::time::Duration::from_nanos(16_666_667);
+        let instant = std::time::Instant::now();
+        let delay = std::time::Duration::from_millis(10);
 
-        *flow = glium::glutin::event_loop::ControlFlow::WaitUntil(next_frame_time);
+        *flow = glium::glutin::event_loop::ControlFlow::WaitUntil(instant + delay);
 
         match event {
             glium::glutin::event::Event::WindowEvent { event, .. } => match event {
