@@ -64,6 +64,14 @@ pub fn reshape(display: &glium::Display) -> Option<glium::Rect> {
     })
 }
 
+pub fn abc(display: &glium::Display) -> glium::DrawParameters {
+    let mut parameters = glium::DrawParameters::default();
+
+    parameters.viewport = reshape(display);
+
+    parameters
+}
+
 /// Run simulation
 pub fn run() {
     #[allow(unused_imports)]
@@ -105,14 +113,14 @@ pub fn run() {
             _ => return,
         }
 
-        let shape = reshape(&display);
+        let parameters = abc(&display);
 
         let mut frame = display.draw();
 
         frame.clear_color(0.96, 0.96, 0.96, 1.0);
 
         for index in 0..objects.len() {
-            objects[index].render(&mut frame, shape);
+            objects[index].render(&mut frame, &parameters);
         }
 
         frame.finish().unwrap();
