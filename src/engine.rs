@@ -78,7 +78,9 @@ pub fn run() {
     use glium::{glutin, Surface};
 
     let events = glium::glutin::event_loop::EventLoop::new();
-    let context = glium::glutin::ContextBuilder::new();
+    let context = glium::glutin::ContextBuilder::new()
+        .with_vsync(false)
+        .with_multisampling(8);
     let window = glium::glutin::window::WindowBuilder::new()
         .with_title(settings::TITLE)
         .with_inner_size(glium::glutin::dpi::PhysicalSize::new(
