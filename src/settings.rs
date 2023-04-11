@@ -2,11 +2,11 @@ pub const WIDTH: u32 = 625;
 pub const HEIGHT: u32 = 625;
 
 pub const LENGTH: usize = 64;
-pub const AMOUNT: usize = 10;
+pub const AMOUNT: usize = 2;
 
 pub const TITLE: &str = "Collisions";
 
-pub const COLORS: [[f64; 3]; 7] = [
+pub const COLORS: [[f32; 3]; 7] = [
     [0.70, 0.08, 0.14], // red
     [0.09, 0.63, 0.69], // blue
     [0.76, 0.65, 0.07], // yellow
