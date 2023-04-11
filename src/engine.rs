@@ -79,6 +79,35 @@ pub fn update(objects: &mut Vec<object::Object>) {
     }
 }
 
+/// Update sphere velocity based in wall collisions
+///
+/// * `object`: Object
+pub fn wall(object: &mut object::Object) {
+    let center = object.sphere.center;
+    let radius = object.sphere.radius;
+
+    let mut velocity = object.sphere.velocity;
+
+    for index in 0..2 {
+        if center[index].abs() + radius > 1.0 {
+            if !(velocity[index].signum() != center[index].signum()) {
+                velocity[index] *= -1.0;
+            }
+        }
+    }
+
+    object.update(center, velocity);
+}
+
+/// Update sphere velocities based in your collisions
+///
+/// * `objects`: Vector with objects in scene
+pub fn collisions(objects: &mut Vec<object::Object>) {
+    for index in 0..objects.len() {
+        wall(&mut objects[index]);
+    }
+}
+
 /// Generate draw parameters
 ///
 /// * `display`: Display
@@ -136,6 +165,7 @@ pub fn run() {
         }
 
         update(&mut objects);
+        collisions(&mut objects);
 
         let parameters = draw(&display);
 
