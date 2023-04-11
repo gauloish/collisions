@@ -6,10 +6,9 @@ use crate::settings;
 
 use rand;
 
-fn print_type_of<T>(_: &T) {
-    println!("{}", std::any::type_name::<T>())
-}
-
+/// Generate objects
+///
+/// * `display`: Display
 pub fn generate(display: &glium::backend::glutin::Display) -> Vec<object::Object> {
     let mut objects: Vec<object::Object> = Vec::new();
 
@@ -28,11 +27,6 @@ pub fn generate(display: &glium::backend::glutin::Display) -> Vec<object::Object
                 (padding + 2.0 * radius) * ((line as f32) + 1.0) - 1.0 - radius, //+ padding / 2.0,
             ];
 
-            println!("Length: {}", length);
-            println!("Radius: {}", radius);
-            println!("Center: ({}, {})", center[0], center[1]);
-            println!("");
-
             objects.push(object::Object::new(center, radius, display));
         }
     }
@@ -40,6 +34,37 @@ pub fn generate(display: &glium::backend::glutin::Display) -> Vec<object::Object
     objects
 }
 
+/// Reshape viewport when window is resized
+///
+/// * `display`: Display
+pub fn reshape(display: &glium::Display) -> Option<glium::Rect> {
+    let window = display.gl_window();
+
+    let mut width = window.window().inner_size().width;
+    let mut height = window.window().inner_size().height;
+
+    let mut left: u32 = 0;
+    let mut bottom: u32 = 0;
+
+    if width > height {
+        left = (width - height) / 2;
+
+        width = height;
+    } else if width < height {
+        bottom = (height - width) / 2;
+
+        height = width;
+    }
+
+    Some(glium::Rect {
+        left,
+        bottom,
+        width,
+        height,
+    })
+}
+
+/// Run simulation
 pub fn run() {
     #[allow(unused_imports)]
     use glium::{glutin, Surface};
@@ -80,12 +105,14 @@ pub fn run() {
             _ => return,
         }
 
+        let shape = reshape(&display);
+
         let mut frame = display.draw();
 
         frame.clear_color(0.96, 0.96, 0.96, 1.0);
 
         for index in 0..objects.len() {
-            objects[index].render(&mut frame);
+            objects[index].render(&mut frame, shape);
         }
 
         frame.finish().unwrap();
