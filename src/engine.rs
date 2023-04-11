@@ -64,7 +64,25 @@ pub fn reshape(display: &glium::Display) -> Option<glium::Rect> {
     })
 }
 
-pub fn abc(display: &glium::Display) -> glium::DrawParameters {
+/// Update sphere positions based in your velocities
+///
+/// * `objects`: Vector with objects in scene
+pub fn update(objects: &mut Vec<object::Object>) {
+    for index in 0..objects.len() {
+        let mut center = objects[index].sphere.center;
+        let velocity = objects[index].sphere.velocity;
+
+        center[0] += velocity[0];
+        center[1] += velocity[1];
+
+        objects[index].update(center, velocity);
+    }
+}
+
+/// Generate draw parameters
+///
+/// * `display`: Display
+pub fn draw(display: &glium::Display) -> glium::DrawParameters {
     let mut parameters = glium::DrawParameters::default();
 
     parameters.viewport = reshape(display);
@@ -74,28 +92,30 @@ pub fn abc(display: &glium::Display) -> glium::DrawParameters {
 
 /// Run simulation
 pub fn run() {
-    #[allow(unused_imports)]
-    use glium::{glutin, Surface};
+    use glium::Surface;
+
+    glium::implement_vertex!(Point, position, color);
 
     let events = glium::glutin::event_loop::EventLoop::new();
+
     let context = glium::glutin::ContextBuilder::new()
         .with_vsync(false)
         .with_multisampling(8);
+
     let window = glium::glutin::window::WindowBuilder::new()
         .with_title(settings::TITLE)
         .with_inner_size(glium::glutin::dpi::PhysicalSize::new(
             settings::WIDTH,
             settings::HEIGHT,
         ));
-    let display = glium::Display::new(window, context, &events).unwrap();
 
-    glium::implement_vertex!(Point, position, color);
+    let display = glium::Display::new(window, context, &events).unwrap();
 
     let mut objects = generate(&display);
 
     events.run(move |event, _, flow| {
         let instant = std::time::Instant::now();
-        let delay = std::time::Duration::from_millis(10);
+        let delay = std::time::Duration::from_millis(5);
 
         *flow = glium::glutin::event_loop::ControlFlow::WaitUntil(instant + delay);
 
@@ -115,7 +135,9 @@ pub fn run() {
             _ => return,
         }
 
-        let parameters = abc(&display);
+        update(&mut objects);
+
+        let parameters = draw(&display);
 
         let mut frame = display.draw();
 
