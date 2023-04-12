@@ -6,7 +6,7 @@ use crate::settings;
 /// Generate vertices array to vertex buffer
 ///
 /// * `sphere`: Sphere to get verices array
-fn vertices_data(sphere: geometry::Sphere) -> [geometry::Point; 1 + settings::LENGTH] {
+fn vertices_data(sphere: &geometry::Sphere) -> [geometry::Point; 1 + settings::LENGTH] {
     let mut data = [geometry::Point::default(); 1 + settings::LENGTH];
 
     data[0].color = sphere.points[0].color;
@@ -55,7 +55,7 @@ impl Object {
     pub fn new(center: [f32; 2], radius: f32, display: &glium::Display) -> Object {
         let sphere = geometry::Sphere::new(center, radius);
 
-        let shape = vertices_data(sphere);
+        let shape = vertices_data(&sphere);
         let index = indices_data();
 
         let vertex = r#"
@@ -78,7 +78,6 @@ impl Object {
             #version 330
             
             in vec3 _color;
-
             out vec4 color;
 
             void main() {
