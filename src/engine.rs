@@ -252,32 +252,6 @@ pub fn init() -> (glium::glutin::event_loop::EventLoop<()>, glium::Display) {
     (process, display)
 }
 
-pub fn events(
-    event: glium::glutin::event::Event<()>,
-    flow: &mut glium::glutin::event_loop::ControlFlow,
-) {
-    let instant = std::time::Instant::now();
-    let delay = std::time::Duration::from_millis(5);
-
-    *flow = glium::glutin::event_loop::ControlFlow::WaitUntil(instant + delay);
-
-    match event {
-        glium::glutin::event::Event::WindowEvent { event, .. } => match event {
-            glium::glutin::event::WindowEvent::CloseRequested => {
-                *flow = glium::glutin::event_loop::ControlFlow::Exit;
-                return;
-            }
-            _ => return,
-        },
-        glium::glutin::event::Event::NewEvents(cause) => match cause {
-            glium::glutin::event::StartCause::ResumeTimeReached { .. } => (),
-            glium::glutin::event::StartCause::Init => (),
-            _ => return,
-        },
-        _ => return,
-    }
-}
-
 /// Run simulation
 pub fn run() {
     let (process, display) = init();
@@ -285,7 +259,27 @@ pub fn run() {
     let mut objects = generate(&display);
 
     process.run(move |event, _, flow| {
-        events(event, flow);
+        let instant = std::time::Instant::now();
+        let delay = std::time::Duration::from_millis(5);
+
+        *flow = glium::glutin::event_loop::ControlFlow::WaitUntil(instant + delay);
+
+        match event {
+            glium::glutin::event::Event::WindowEvent { event, .. } => match event {
+                glium::glutin::event::WindowEvent::CloseRequested => {
+                    *flow = glium::glutin::event_loop::ControlFlow::Exit;
+                    return;
+                }
+                _ => return,
+            },
+            glium::glutin::event::Event::NewEvents(cause) => match cause {
+                glium::glutin::event::StartCause::ResumeTimeReached { .. } => (),
+                glium::glutin::event::StartCause::Init => (),
+                _ => return,
+            },
+            _ => return,
+        }
+
         update(&mut objects);
         collisions(&mut objects);
         adjust(&mut objects);
