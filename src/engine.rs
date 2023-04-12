@@ -123,7 +123,7 @@ pub fn inner(objects: &mut Vec<object::Object>, first: usize, second: usize) {
     ];
 
     for index in 0..2 {
-        if operations::dist(next[index], center[(index + 1) % 2]) > 1.9 * radius {
+        if operations::dist(next[index], center[(index + 1) % 2]) > 2.0 * radius {
             return;
         }
     }
@@ -161,6 +161,38 @@ pub fn collisions(objects: &mut Vec<object::Object>) {
         for second in 0..objects.len() {
             if first != second {
                 inner(objects, first, second);
+            }
+        }
+    }
+}
+
+/// Adjust contact between spheres to avoid intersection
+///
+/// * `objects`: Vector with objects in scene
+pub fn adjust(objects: &mut Vec<object::Object>) {
+    let radius = objects[0].sphere.radius;
+
+    for first in 0..objects.len() {
+        for second in 0..objects.len() {
+            if first == second {
+                continue;
+            }
+
+            let center = [
+                objects[first].sphere.center,  //
+                objects[second].sphere.center, //
+            ];
+
+            let vector = operations::sub(center[0], center[1]);
+            let magnitude = operations::dist(center[0], center[1]);
+
+            let detour = 2.0 * radius - magnitude;
+
+            if detour > 0.0 {
+                let correction = operations::scale(0.5 * detour / magnitude, vector);
+
+                objects[first].sphere.center = operations::add(center[0], correction);
+                objects[second].sphere.center = operations::sub(center[1], correction);
             }
         }
     }
@@ -224,6 +256,7 @@ pub fn run() {
 
         update(&mut objects);
         collisions(&mut objects);
+        adjust(&mut objects);
 
         let parameters = draw(&display);
 
