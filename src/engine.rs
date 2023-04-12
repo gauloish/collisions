@@ -1,6 +1,5 @@
 extern crate glium;
 
-use crate::geometry;
 use crate::object;
 use crate::operations;
 use crate::settings;
@@ -229,12 +228,13 @@ pub fn render(objects: &mut Vec<object::Object>, display: &glium::Display) {
     frame.finish().unwrap();
 }
 
+/// Initialize event loop and display
 pub fn init() -> (glium::glutin::event_loop::EventLoop<()>, glium::Display) {
     use crate::geometry::Point;
 
     glium::implement_vertex!(Point, position, color);
 
-    let events = glium::glutin::event_loop::EventLoop::new();
+    let process = glium::glutin::event_loop::EventLoop::new();
 
     let context = glium::glutin::ContextBuilder::new()
         .with_vsync(false)
@@ -247,39 +247,45 @@ pub fn init() -> (glium::glutin::event_loop::EventLoop<()>, glium::Display) {
             settings::HEIGHT,
         ));
 
-    let display = glium::Display::new(window, context, &events).unwrap();
+    let display = glium::Display::new(window, context, &process).unwrap();
 
-    (events, display)
+    (process, display)
+}
+
+pub fn events(
+    event: glium::glutin::event::Event<()>,
+    flow: &mut glium::glutin::event_loop::ControlFlow,
+) {
+    let instant = std::time::Instant::now();
+    let delay = std::time::Duration::from_millis(5);
+
+    *flow = glium::glutin::event_loop::ControlFlow::WaitUntil(instant + delay);
+
+    match event {
+        glium::glutin::event::Event::WindowEvent { event, .. } => match event {
+            glium::glutin::event::WindowEvent::CloseRequested => {
+                *flow = glium::glutin::event_loop::ControlFlow::Exit;
+                return;
+            }
+            _ => return,
+        },
+        glium::glutin::event::Event::NewEvents(cause) => match cause {
+            glium::glutin::event::StartCause::ResumeTimeReached { .. } => (),
+            glium::glutin::event::StartCause::Init => (),
+            _ => return,
+        },
+        _ => return,
+    }
 }
 
 /// Run simulation
 pub fn run() {
-    let (things, display) = init();
+    let (process, display) = init();
 
     let mut objects = generate(&display);
 
-    things.run(move |event, _, flow| {
-        let instant = std::time::Instant::now();
-        let delay = std::time::Duration::from_millis(5);
-
-        *flow = glium::glutin::event_loop::ControlFlow::WaitUntil(instant + delay);
-
-        match event {
-            glium::glutin::event::Event::WindowEvent { event, .. } => match event {
-                glium::glutin::event::WindowEvent::CloseRequested => {
-                    *flow = glium::glutin::event_loop::ControlFlow::Exit;
-                    return;
-                }
-                _ => return,
-            },
-            glium::glutin::event::Event::NewEvents(cause) => match cause {
-                glium::glutin::event::StartCause::ResumeTimeReached { .. } => (),
-                glium::glutin::event::StartCause::Init => (),
-                _ => return,
-            },
-            _ => return,
-        }
-
+    process.run(move |event, _, flow| {
+        events(event, flow);
         update(&mut objects);
         collisions(&mut objects);
         adjust(&mut objects);
