@@ -238,7 +238,7 @@ pub fn init() -> (glium::glutin::event_loop::EventLoop<()>, glium::Display) {
 
     let context = glium::glutin::ContextBuilder::new()
         .with_vsync(false)
-        .with_multisampling(8);
+        .with_multisampling(4);
 
     let window = glium::glutin::window::WindowBuilder::new()
         .with_title(settings::TITLE)
