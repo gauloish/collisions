@@ -2,6 +2,7 @@ extern crate glium;
 
 use crate::geometry::Point;
 use crate::object;
+use crate::operations;
 use crate::settings;
 
 use rand;
@@ -72,8 +73,7 @@ pub fn update(objects: &mut Vec<object::Object>) {
         let mut center = objects[index].sphere.center;
         let velocity = objects[index].sphere.velocity;
 
-        center[0] += velocity[0];
-        center[1] += velocity[1];
+        center = operations::add(center, velocity);
 
         objects[index].update(center, velocity);
     }
@@ -99,12 +99,70 @@ pub fn wall(object: &mut object::Object) {
     object.update(center, velocity);
 }
 
+/// Update spheres velocity based in inner collisions
+///
+/// * `objects`: Vector of objects
+/// * `first`: Index to first object
+/// * `second`: Index to second object
+pub fn inner(objects: &mut Vec<object::Object>, first: usize, second: usize) {
+    let radius = objects[first].sphere.radius;
+
+    let center = [
+        objects[first].sphere.center,  //
+        objects[second].sphere.center, //
+    ];
+
+    let velocity = [
+        objects[first].sphere.velocity,  //
+        objects[second].sphere.velocity, //
+    ];
+
+    let next = [
+        operations::add(center[0], velocity[0]), //
+        operations::add(center[1], velocity[1]), //
+    ];
+
+    for index in 0..2 {
+        if operations::dist(next[index], center[(index + 1) % 2]) > 1.9 * radius {
+            return;
+        }
+    }
+
+    objects[first].sphere.velocity = operations::sub(
+        velocity[0],
+        operations::scale(
+            operations::dot(
+                operations::sub(velocity[0], velocity[1]),
+                operations::sub(center[0], center[1]),
+            ) / operations::dist(center[0], center[1]).powf(2.0),
+            operations::sub(center[0], center[1]),
+        ),
+    );
+
+    objects[second].sphere.velocity = operations::sub(
+        velocity[1],
+        operations::scale(
+            operations::dot(
+                operations::sub(velocity[1], velocity[0]),
+                operations::sub(center[1], center[0]),
+            ) / operations::dist(center[1], center[0]).powf(2.0),
+            operations::sub(center[1], center[0]),
+        ),
+    );
+}
+
 /// Update sphere velocities based in your collisions
 ///
 /// * `objects`: Vector with objects in scene
 pub fn collisions(objects: &mut Vec<object::Object>) {
-    for index in 0..objects.len() {
-        wall(&mut objects[index]);
+    for first in 0..objects.len() {
+        wall(&mut objects[first]);
+
+        for second in 0..objects.len() {
+            if first != second {
+                inner(objects, first, second);
+            }
+        }
     }
 }
 
