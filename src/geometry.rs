@@ -60,7 +60,7 @@ impl Sphere {
         });
 
         let angle = rand::random::<f32>();
-        let multiplier = 1 + rand::random::<usize>() % 100;
+        let multiplier = 20 + rand::random::<usize>() % 30;
 
         let velocity: [f32; 2] = [
             ((multiplier as f32) / 100.0) * radius * angle.cos(),
