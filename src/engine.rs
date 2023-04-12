@@ -1,6 +1,6 @@
 extern crate glium;
 
-use crate::geometry::Point;
+use crate::geometry;
 use crate::object;
 use crate::operations;
 use crate::settings;
@@ -209,9 +209,28 @@ pub fn draw(display: &glium::Display) -> glium::DrawParameters {
     parameters
 }
 
-/// Run simulation
-pub fn run() {
+/// Render all spheres in scene
+///
+/// * `objects`: Objects
+/// * `display`: Display
+pub fn render(objects: &mut Vec<object::Object>, display: &glium::Display) {
     use glium::Surface;
+
+    let parameters = draw(display);
+
+    let mut frame = display.draw();
+
+    frame.clear_color(0.96, 0.96, 0.96, 1.0);
+
+    for index in 0..objects.len() {
+        objects[index].render(&mut frame, &parameters);
+    }
+
+    frame.finish().unwrap();
+}
+
+pub fn init() -> (glium::glutin::event_loop::EventLoop<()>, glium::Display) {
+    use crate::geometry::Point;
 
     glium::implement_vertex!(Point, position, color);
 
@@ -230,9 +249,16 @@ pub fn run() {
 
     let display = glium::Display::new(window, context, &events).unwrap();
 
+    (events, display)
+}
+
+/// Run simulation
+pub fn run() {
+    let (things, display) = init();
+
     let mut objects = generate(&display);
 
-    events.run(move |event, _, flow| {
+    things.run(move |event, _, flow| {
         let instant = std::time::Instant::now();
         let delay = std::time::Duration::from_millis(5);
 
@@ -257,17 +283,6 @@ pub fn run() {
         update(&mut objects);
         collisions(&mut objects);
         adjust(&mut objects);
-
-        let parameters = draw(&display);
-
-        let mut frame = display.draw();
-
-        frame.clear_color(0.96, 0.96, 0.96, 1.0);
-
-        for index in 0..objects.len() {
-            objects[index].render(&mut frame, &parameters);
-        }
-
-        frame.finish().unwrap();
+        render(&mut objects, &display);
     });
 }
