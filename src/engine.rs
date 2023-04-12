@@ -24,8 +24,8 @@ pub fn generate(display: &glium::backend::glutin::Display) -> Vec<object::Object
     for line in 0..(amount as usize) {
         for column in 0..(amount as usize) {
             let center = [
-                (padding + 2.0 * radius) * ((column as f32) + 1.0) - 1.0 - radius, //+ radius + padding / 2.0,
-                (padding + 2.0 * radius) * ((line as f32) + 1.0) - 1.0 - radius, //+ padding / 2.0,
+                (padding + 2.0 * radius) * ((column as f32) + 1.0) - 1.0 - radius,
+                (padding + 2.0 * radius) * ((line as f32) + 1.0) - 1.0 - radius,
             ];
 
             objects.push(object::Object::new(center, radius, display));
