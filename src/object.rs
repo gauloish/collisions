@@ -113,7 +113,7 @@ impl Object {
     /// Render object
     ///
     /// * `display`: Display where render
-    pub fn render(&mut self, frame: &mut glium::Frame, parameters: glium::DrawParameters) {
+    pub fn render(&mut self, frame: &mut glium::Frame, parameters: &glium::DrawParameters) {
         use glium::Surface;
 
         let uniforms = glium::uniform! {
@@ -126,7 +126,7 @@ impl Object {
                 &self.indices,
                 &self.program,
                 &uniforms,
-                &parameters,
+                parameters,
             )
             .unwrap();
     }
